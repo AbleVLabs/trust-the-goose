@@ -1,7 +1,1 @@
-# Core — the threat-intel feed and computer scan need these
-pandas
-numpy
-
-# Optional but recommended:
-#   pip-audit  -> "Audit my apps" (Python package CVE check)
-#   nmap       -> network scan (install from nmap.org, not pip)
+Flask>=3.0
