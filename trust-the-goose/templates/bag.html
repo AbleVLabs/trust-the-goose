@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %} · My bag{% endblock %}
+{% block body %}
+<h1>My bag</h1>
+<p class="sub">Your real numbers &mdash; every club, averaged from the shots you've logged.</p>
+
+{% if stats %}
+<table class="tbl bag">
+  <thead><tr><th>Club</th><th>Shots</th><th>Average</th><th>Spread</th><th>Range</th><th>Consistency</th></tr></thead>
+  <tbody>
+  {% for club, s in stats.items() %}
+    <tr>
+      <td class="strong">{{ club }}</td>
+      <td>{{ s['n'] }}</td>
+      <td class="avg">{{ s['avg'] }} yds</td>
+      <td class="muted">&plusmn;{{ s['std'] }}</td>
+      <td class="muted small rng">{{ s['min'] }} &ndash; {{ s['max'] }}</td>
+      {# same thresholds the Goose uses on the Ask page — one colour language
+         everywhere: red n<2, green n>=5 with std<=9, yellow in between #}
+      <td class="cons">
+        {% if s['n'] < 2 %}<span class="dot red"></span><span class="muted small">barely any</span>
+        {% elif s['n'] >= 5 and s['std'] <= 9 %}<span class="dot green"></span><span class="muted small">tight</span>
+        {% elif s['n'] < 5 %}<span class="dot yellow"></span><span class="muted small">thin data</span>
+        {% else %}<span class="dot yellow"></span><span class="muted small">loose</span>{% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p class="note-sm">Spread (&plusmn;) is the standard deviation — smaller means more repeatable. The Goose trusts tight clubs more.</p>
+{% else %}
+<p class="empty">The bag's empty. <a href="{{ url_for('log') }}">Log some shots</a> and your numbers fill in here.</p>
+{% endif %}
+
+{% if stats %}<a class="btn ghost mt" href="{{ url_for('goose') }}">Ask the Goose which club &#8599;</a>{% endif %}
+{% endblock %}

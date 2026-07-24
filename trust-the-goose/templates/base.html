@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trust the Goose{% block title %}{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Space+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='logo.png') }}">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('log') }}">
+    <!-- Your full logo (static/logo.png) shown whole. If it's missing, the goose
+         icon + wordmark below render instead so the header is never broken. -->
+    <img class="brandlogo" src="{{ url_for('static', filename='logo.png') }}" alt="Trust the Goose"
+         onerror="this.style.display='none';document.getElementById('bfallback').style.display='flex'">
+    <span id="bfallback" class="brandfallback" style="display:none">
+      <svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17 39 C14 31 14 23 19 18 C22 14 28 13 32 16 C36 19 35 24 30 25 C26 26 23 27 21 31 C19 34 19 37 20 39 Z" fill="#e8f0ec"/>
+        <path d="M31 18 L40 20 L31 23 Z" fill="#e8b23a"/>
+        <circle cx="27" cy="19" r="1.7" fill="#0a0f0d"/>
+      </svg>
+      <span class="wordmark">TRUST THE <span class="c">GOOSE</span></span>
+    </span>
+  </a>
+  <nav>
+    <a href="{{ url_for('log') }}" class="{{ 'active' if request.endpoint == 'log' }}">Log a shot</a>
+    <a href="{{ url_for('bag') }}" class="{{ 'active' if request.endpoint == 'bag' }}">My bag</a>
+    <a href="{{ url_for('dispersion') }}" class="{{ 'active' if request.endpoint == 'dispersion' }}">Dispersion</a>
+    <a href="{{ url_for('goose') }}" class="{{ 'active' if request.endpoint == 'goose' }}">Ask the Goose</a>
+  </nav>
+</header>
+
+<main>
+  {% with msgs = get_flashed_messages(with_categories=true) %}
+    {% for cat, m in msgs %}
+      <div class="flash {{ cat }}">{{ m }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% block body %}{% endblock %}
+</main>
+
+<footer>
+  <span>Trust the Goose &middot; by <b>AbleV Labs</b></span>
+  <span class="tag">confident so you don't have to be.</span>
+</footer>
+<script>
+  // flash messages fade out on their own after a few seconds
+  document.querySelectorAll('.flash').forEach(function (el) {
+    setTimeout(function () {
+      el.style.opacity = '0';
+      setTimeout(function () { el.remove(); }, 400);
+    }, 3500);
+  });
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

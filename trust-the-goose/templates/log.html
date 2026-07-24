@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %} · Log a shot{% endblock %}
+{% block body %}
+<div class="hero-row">
+  <div>
+    <h1>Log a shot</h1>
+    <p class="sub">{{ total }} shot{{ '' if total == 1 else 's' }} on record. The more you log, the sharper the Goose gets.</p>
+  </div>
+</div>
+
+<form method="post" class="card logform">
+  <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+  <div class="row">
+    <label>Club
+      <select name="club" required>
+        {% for c in clubs %}<option value="{{ c }}" {{ 'selected' if c == last_club }}>{{ c }}</option>{% endfor %}
+      </select>
+    </label>
+    <label>Carry distance (yds)
+      <input type="number" name="carry" min="10" max="400" placeholder="e.g. 162" required>
+    </label>
+  </div>
+  <div class="row">
+    <label>Left / Right (yds, optional)
+      <input type="number" name="side" min="-70" max="70" placeholder="-10 = left · +10 = right · 0 = straight">
+    </label>
+    <label>Note (optional)
+      <input type="text" name="note" placeholder="flushed it / thin / into the wind">
+    </label>
+  </div>
+  <button class="btn" type="submit">Log it</button>
+</form>
+
+<h2 class="mt">Recent shots</h2>
+{% if recent %}
+<table class="tbl">
+  <thead><tr><th>Club</th><th>Carry</th><th>Miss</th><th>Note</th><th>When</th><th></th></tr></thead>
+  <tbody>
+  {% for s in recent %}
+    <tr>
+      <td class="strong">{{ s['club'] }}</td>
+      <td>{{ s['carry'] }} yds</td>
+      <td class="muted small">
+        {% set sd = s['side'] or 0 %}
+        {% if sd < 0 %}{{ -sd }}L{% elif sd > 0 %}{{ sd }}R{% else %}&mdash;{% endif %}
+      </td>
+      <td class="muted">{{ s['note'] or '—' }}</td>
+      <td class="muted small">{{ s['logged'][:16] }}</td>
+      <td>
+        <form method="post" action="{{ url_for('delete', shot_id=s['id']) }}"
+              onsubmit="return confirm('Remove this {{ s['club'] }} shot ({{ s['carry'] }} yds)?')">
+          <input type="hidden" name="_csrf" value="{{ csrf_token() }}">
+          <button class="x" type="submit" title="remove">&times;</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">No shots yet. Log your first one above &mdash; the Goose learns from every swing.</p>
+{% endif %}
+{% endblock %}

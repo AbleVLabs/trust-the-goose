@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %} · Ask the Goose{% endblock %}
+{% block body %}
+<h1>Ask the Goose</h1>
+<p class="sub">Tell the Goose the distance and the conditions. It calls the club &mdash; and how far it trusts the call.</p>
+
+<form method="post" class="card askform">
+  <div class="row">
+    <label>Target carry (yds)
+      <input type="number" name="target" min="10" max="400"
+             value="{{ form.get('target','') if form }}" placeholder="e.g. 155" required autofocus>
+    </label>
+    <label>Temperature (&deg;F, optional)
+      <input type="number" name="temp" min="10" max="120"
+             value="{{ form.get('temp','') if form }}" placeholder="e.g. 58">
+    </label>
+  </div>
+  <div class="row">
+    <label>Wind (mph, optional)
+      <input type="number" name="wind" min="0" max="50"
+             value="{{ form.get('wind','') if form }}" placeholder="e.g. 12">
+    </label>
+    <label>Wind direction
+      <select name="wdir">
+        <option value="none" {{ 'selected' if form and form.get('wdir')=='none' }}>Calm / crosswind</option>
+        <option value="into" {{ 'selected' if form and form.get('wdir')=='into' }}>Into the wind</option>
+        <option value="down" {{ 'selected' if form and form.get('wdir')=='down' }}>Downwind</option>
+      </select>
+    </label>
+  </div>
+  <button class="btn" type="submit">Ask the Goose</button>
+</form>
+
+{% if result %}
+{% if result.get('plays_like') and result['plays_like'] != result['actual'] %}
+<div class="playslike">
+  <span class="pl-actual">{{ result['actual'] }} yds</span>
+  <span class="pl-arrow">plays like</span>
+  <span class="pl-eff">{{ result['plays_like'] }} yds</span>
+  {% if result['wx_notes'] %}<span class="pl-notes">{{ result['wx_notes']|join(' · ') }}</span>{% endif %}
+</div>
+{% endif %}
+
+<div class="verdict {{ result['tier'] }}">
+  <div class="verdict-top">
+    {% if result['tier'] == 'green' %}<span class="tierdot green"></span>TRUST THE GOOSE
+    {% elif result['tier'] == 'yellow' %}<span class="tierdot yellow"></span>THE GOOSE IS UNSURE
+    {% else %}<span class="tierdot red"></span>DON'T TRUST THE GOOSE{% endif %}
+  </div>
+  {% if result['club'] %}<div class="verdict-club">{{ result['club'] }}</div>{% endif %}
+  <div class="verdict-head">{{ result['headline'] }}</div>
+  <div class="verdict-detail">{{ result['detail'] }}</div>
+  {% if not result['club'] %}
+  <a class="btn ghost mt" href="{{ url_for('log') }}">Log some shots &#8599;</a>
+  {% endif %}
+  {% if result['stats'] %}
+  <div class="verdict-stats">
+    <span>{{ result['stats']['n'] }} shots</span>
+    <span>avg {{ result['stats']['avg'] }} yds</span>
+    <span>&plusmn;{{ result['stats']['std'] }}</span>
+    <span>range {{ result['stats']['min'] }}&ndash;{{ result['stats']['max'] }}</span>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+{% endblock %}

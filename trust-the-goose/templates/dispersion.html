@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %} · Dispersion{% endblock %}
+{% block body %}
+<h1>Dispersion</h1>
+<p class="sub">Where your shots actually land. Left/right along the bottom, carry up the side &mdash;
+  one colour per club. Click a club in the legend to hide it.</p>
+
+{% if has_data %}
+<div class="card" style="padding:1rem">
+  <div id="chart" style="width:100%;height:560px"></div>
+</div>
+<p class="note-sm">The tighter a club's cluster, the more the Goose trusts it. Log the
+  <b>Left / Right</b> field on each shot to see your real shot shape build up here.</p>
+{% else %}
+<p class="empty">No shots yet. <a href="{{ url_for('log') }}">Log a few rounds</a> and your shot pattern builds up here.</p>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if has_data %}
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script>
+  // Plotly comes off a CDN — at a range with no signal the page would just
+  // show a blank void. Say so instead.
+  if (typeof Plotly === 'undefined') {
+    document.getElementById('chart').innerHTML =
+      '<p class="empty" style="padding:1rem">The chart needs an internet connection ' +
+      '(the plotting library loads from the web). Your shots are safe — reconnect and refresh.</p>';
+  } else {
+  var traces = {{ traces | tojson }};
+  traces.forEach(function(t){
+    t.hovertemplate = t.name + '<br>%{y} yds carry<br>%{x:+d} yds off line<extra></extra>';
+  });
+  var layout = {
+    paper_bgcolor: 'rgba(0,0,0,0)',
+    plot_bgcolor: 'rgba(0,0,0,0)',
+    font: { color: '#7c8d86', family: 'Rajdhani, sans-serif' },
+    margin: { l: 60, r: 20, t: 20, b: 55 },
+    xaxis: {
+      title: 'Left  &#8592;   miss (yds)   &#8594;  Right',
+      zeroline: true, zerolinecolor: 'rgba(47,214,176,.5)', zerolinewidth: 2,
+      gridcolor: 'rgba(120,200,160,.08)', tickfont: { color: '#7c8d86' }
+    },
+    yaxis: {
+      title: 'Carry distance (yds)',
+      gridcolor: 'rgba(120,200,160,.08)', tickfont: { color: '#7c8d86' }
+    },
+    legend: { font: { color: '#c9d6d0' } },
+    hovermode: 'closest'
+  };
+  Plotly.newPlot('chart', traces, layout, {displayModeBar: false, responsive: true});
+  }
+</script>
+{% endif %}
+{% endblock %}
